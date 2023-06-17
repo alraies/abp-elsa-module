@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Passingwind.WorkflowApp.Data;
 using Serilog;
 using Volo.Abp;
+using Volo.Abp.Data;
 
 namespace Passingwind.WorkflowApp.DbMigrator;
 
@@ -19,15 +20,15 @@ public class DbMigratorHostedService : IHostedService
         _hostApplicationLifetime = hostApplicationLifetime;
         _configuration = configuration;
     }
-
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         using (var application = await AbpApplicationFactory.CreateAsync<WorkflowAppDbMigratorModule>(options =>
-        {
-           options.Services.ReplaceConfiguration(_configuration);
-           options.UseAutofac();
-           options.Services.AddLogging(c => c.AddSerilog());
-        }))
+               {
+                   options.Services.ReplaceConfiguration(_configuration);
+                   options.UseAutofac();
+                   options.Services.AddLogging(c => c.AddSerilog());
+                   options.AddDataMigrationEnvironment();
+               }))
         {
             await application.InitializeAsync();
 
